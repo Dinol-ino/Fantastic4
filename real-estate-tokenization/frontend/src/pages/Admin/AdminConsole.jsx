@@ -185,7 +185,7 @@ const AdminConsole = () => {
                             padding: '40px',
                             borderRadius: '12px',
                             textAlign: 'center',
-                            color: '#6b7280'
+                            color: '#1f2937'
                         }}>
                             No pending requests. Property requests from sellers will appear here.
                         </div>
@@ -310,7 +310,7 @@ const AdminConsole = () => {
                             padding: '40px',
                             borderRadius: '12px',
                             textAlign: 'center',
-                            color: '#6b7280'
+                            color: '#1f2937'
                         }}>
                             No properties listed yet. <Link to="/admin/create" style={{ color: '#2563eb' }}>Create your first listing</Link>
                         </div>
@@ -419,7 +419,8 @@ const AdminConsole = () => {
                                                 padding: '10px',
                                                 backgroundColor: '#f3f4f6',
                                                 borderRadius: '6px',
-                                                marginBottom: '8px'
+                                                marginBottom: '8px',
+                                                color: '#1f2937'
                                             }}>
                                                 <a href={doc.url} target="_blank" rel="noopener noreferrer" style={{ color: '#2563eb' }}>
                                                     📎 {doc.name}

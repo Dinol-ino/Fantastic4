@@ -181,12 +181,12 @@ const Marketplace = () => {
           </div>
         ) : filteredProperties.length === 0 ? (
           <div style={{
-            textAlign: 'center',
-            padding: '60px',
             backgroundColor: '#f9fafb',
-            borderRadius: '12px'
-          }}>
-            <h3>No properties found</h3>
+            padding: '80px 24px',
+            borderRadius: '12px',
+            textAlign: 'center',
+            color: '#1f2937'
+          }}>  <h3>No properties found</h3>
             <p style={{ color: '#6b7280', marginTop: '10px' }}>
               Try adjusting your filters or check back later
             </p>

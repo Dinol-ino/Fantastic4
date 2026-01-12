@@ -243,14 +243,15 @@ const ResaleMarketplace = () => {
                             </div>
                         ) : listings.length === 0 ? (
                             <div style={{
-                                textAlign: 'center',
-                                padding: '80px',
-                                backgroundColor: '#0a0a0a',
+                                backgroundColor: '#f9fafb',
+                                padding: '40px',
                                 borderRadius: '12px',
+                                textAlign: 'center',
+                                color: '#1f2937',
                                 border: '1px solid rgba(212,175,55,0.15)'
                             }}>
-                                <h3 style={{ color: '#fff', fontSize: '1.6rem', fontWeight: '700' }}>No Active Listings</h3>
-                                <p style={{ color: '#888', marginTop: '16px', fontSize: '1.1rem' }}>
+                                <h3 style={{ color: '#1f2937', fontSize: '1.6rem', fontWeight: '700' }}>No Active Listings</h3>
+                                <p style={{ color: '#4b5563', marginTop: '16px', fontSize: '1.1rem' }}>
                                     Be the first to list your shares for resale!
                                 </p>
                                 <button
@@ -290,8 +291,9 @@ const ResaleMarketplace = () => {
                                             <div style={{
                                                 backgroundColor: '#f3f4f6',
                                                 padding: '10px',
-                                                borderRadius: '8px',
-                                                marginBottom: '15px',
+                                                borderRadius: '6px',
+                                                marginBottom: '8px',
+                                                color: '#1f2937',
                                                 fontSize: '0.85rem'
                                             }}>
                                                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>

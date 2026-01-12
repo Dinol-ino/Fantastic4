@@ -402,8 +402,10 @@ const PropertyDetails = () => {
                                 />
                                 <div style={{
                                     backgroundColor: '#f3f4f6',
-                                    padding: '15px',
-                                    borderRadius: '8px'
+                                    padding: '10px',
+                                    borderRadius: '6px',
+                                    marginBottom: '8px',
+                                    color: '#1f2937'
                                 }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
                                         <span>Shares</span>

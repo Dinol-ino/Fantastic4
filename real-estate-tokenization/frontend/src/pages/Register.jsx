@@ -85,7 +85,7 @@ const Register = () => {
     }}>
       <div className="card" style={{ maxWidth: '520px', width: '100%', padding: '50px' }}>
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-          <img src="/assets/logo.jpg" alt="Aurelian" style={{ height: '50px', margin: '0 auto 24px', display: 'block' }} />
+          <img src="/assets/logo.jpg" alt="Aurelian" style={{ height: '80px', margin: '0 auto 24px', display: 'block' }} />
           <h2 style={{ fontSize: '2.2rem', fontWeight: '700', marginBottom: '14px', color: '#d4af37' }}>Create Account</h2>
           <p style={{ color: '#888', fontSize: '1.15rem' }}>Start investing in tokenized real estate</p>
         </div>

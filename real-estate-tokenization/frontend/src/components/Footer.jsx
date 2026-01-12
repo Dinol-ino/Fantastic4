@@ -26,7 +26,7 @@ const Footer = () => {
                             fontWeight: '700',
                             letterSpacing: '0.18em'
                         }}>
-                            <img src="/assets/logo.jpg" alt="Logo" style={{ height: '48px' }} />
+                            <img src="/assets/logo.jpg" alt="Logo" style={{ height: '72px' }} />
                             AURELIAN
                         </div>
                         <p style={{ color: '#A8A8A8', fontSize: '1.15rem', lineHeight: '1.9' }}>

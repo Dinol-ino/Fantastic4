@@ -466,7 +466,8 @@ const CreateProperty = () => {
                     padding: '15px',
                     borderRadius: '8px',
                     marginBottom: '20px',
-                    border: '1px solid #10b981'
+                    border: '1px solid #10b981',
+                    color: '#1f2937'
                   }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                       <span>Total Property Value:</span>
@@ -576,7 +577,8 @@ const CreateProperty = () => {
                   backgroundColor: '#f9fafb',
                   borderRadius: '12px',
                   padding: '20px',
-                  marginBottom: '20px'
+                  marginBottom: '20px',
+                  color: '#1f2937'
                 }}>
                   {/* Main Image */}
                   {images[0] && (

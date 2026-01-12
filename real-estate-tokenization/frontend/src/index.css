@@ -24,7 +24,7 @@
   --border-gold: rgba(201, 162, 77, 0.4);
 
   /* Layout */
-  --header-height: 80px;
+  --header-height: 100px;
 }
 
 /* FORCE DARK BACKGROUND ON ALL ELEMENTS */
@@ -291,7 +291,7 @@
   }
 
   .nav-logo {
-    font-size: 2rem;
+    font-size: 2.4rem;
     font-weight: 700;
     letter-spacing: 0.2em;
     color: var(--accent-gold);
@@ -309,7 +309,7 @@
 
   .nav-links a {
     color: var(--text-secondary);
-    font-size: 1.1rem;
+    font-size: 1.6rem;
     font-weight: 600;
     margin-left: 36px;
     text-decoration: none;

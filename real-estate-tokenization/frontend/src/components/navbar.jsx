@@ -12,7 +12,7 @@ const Navbar = () => {
     <nav className="navbar">
       <div className="container flex justify-between" style={{ height: '100%', alignItems: 'center' }}>
         <Link to="/" className="nav-logo">
-          <img src="/assets/logo.jpg" alt="Aurelian Logo" style={{ height: '32px', width: 'auto' }} />
+          <img src="/assets/logo.jpg" alt="Aurelian Logo" style={{ height: '68px', width: 'auto' }} />
           AURELIAN
         </Link>
 

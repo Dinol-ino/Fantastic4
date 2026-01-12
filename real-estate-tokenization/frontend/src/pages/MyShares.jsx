@@ -396,10 +396,11 @@ const MyShares = () => {
                             {sellForm.shares && sellForm.price && (
                                 <div style={{
                                     backgroundColor: '#f0fdf4',
-                                    padding: '15px',
-                                    borderRadius: '8px',
-                                    marginBottom: '20px',
-                                    border: '1px solid #10b981'
+                                    color: '#1f2937',
+                                    padding: '16px',
+                                    borderRadius: '12px',
+                                    border: '1px solid #10b981',
+                                    marginTop: '16px'
                                 }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
                                         <span>Total if sold:</span>
