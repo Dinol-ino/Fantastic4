@@ -1,14 +1,10 @@
 // backend/src/config/firebase.js
-const admin = require("firebase-admin");
-const dotenv = require("dotenv");
+import admin from 'firebase-admin';
+import dotenv from 'dotenv';
 
 dotenv.config();
 
 // Initialize Firebase Admin with credentials from .env
-// You will need to download a serviceAccountKey.json from Firebase Console later
-// For now, we can use environment variables if formatted correctly, 
-// OR simpler: just use default application credentials for local testing.
-
 try {
   admin.initializeApp({
     credential: admin.credential.cert({
@@ -18,12 +14,11 @@ try {
       privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
     }),
   });
-  console.log("Firebase Admin Initialized");
+  console.log("✅ Firebase Admin Initialized");
 } catch (error) {
-  console.error("Firebase Admin Initialization Error:", error);
+  console.error("❌ Firebase Admin Initialization Error:", error.message);
 }
 
-const db = admin.firestore();
-const auth = admin.auth();
-
-module.exports = { db, auth, admin };
+export const db = admin.firestore();
+export const auth = admin.auth();
+export default admin;
