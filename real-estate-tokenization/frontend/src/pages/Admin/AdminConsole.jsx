@@ -217,7 +217,7 @@ const AdminConsole = () => {
                                                         )}
                                                         <div>
                                                             <div style={{ fontWeight: '600' }}>{request.title || 'Untitled'}</div>
-                                                            <div style={{ fontSize: '0.85rem', color: '#6b7280' }}>{request.location}</div>
+                                                            <div style={{ fontSize: '0.85rem', color: '#6b7280' }}>{request.location?.address || (typeof request.location === 'string' ? request.location : '')}</div>
                                                         </div>
                                                     </div>
                                                 </td>
@@ -324,15 +324,25 @@ const AdminConsole = () => {
                                 <div key={property.id} className="card" style={{ padding: 0, overflow: 'hidden' }}>
                                     <div style={{ height: '140px', overflow: 'hidden' }}>
                                         <img
-                                            src={property.imageUrl || 'https://via.placeholder.com/300x150'}
+                                            src={property.mainImageUrl || property.imageUrl || '/assets/placeholder.jpg'}
                                             alt={property.title}
-                                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                            loading="lazy"
+                                            style={{
+                                                width: '100%',
+                                                height: '100%',
+                                                objectFit: 'cover',
+                                                backgroundColor: '#1C1F26'
+                                            }}
+                                            onError={(e) => {
+                                                e.target.onerror = null;
+                                                e.target.src = 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=300&h=150&fit=crop';
+                                            }}
                                         />
                                     </div>
                                     <div style={{ padding: '16px' }}>
                                         <h4 style={{ marginBottom: '5px', fontWeight: '600' }}>{property.title}</h4>
                                         <p style={{ fontSize: '0.85rem', color: '#6b7280', marginBottom: '10px' }}>
-                                            {property.location}
+                                            {property.location?.address || (typeof property.location === 'string' ? property.location : '')}
                                         </p>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
                                             <span>{property.pricePerShare} MATIC/share</span>
@@ -393,7 +403,7 @@ const AdminConsole = () => {
                             <div style={{ marginBottom: '20px' }}>
                                 <h4 style={{ fontWeight: '600', marginBottom: '10px' }}>{selectedRequest.title}</h4>
                                 <p style={{ color: '#6b7280', marginBottom: '10px' }}>{selectedRequest.description}</p>
-                                <p><strong>Location:</strong> {selectedRequest.location}</p>
+                                <p><strong>Location:</strong> {selectedRequest.location?.address || (typeof selectedRequest.location === 'string' ? selectedRequest.location : '')}</p>
                                 <p><strong>Price/Share:</strong> {selectedRequest.pricePerShare} MATIC</p>
                                 <p><strong>Total Shares:</strong> {selectedRequest.totalShares}</p>
                                 <p><strong>Seller:</strong> {selectedRequest.sellerEmail}</p>

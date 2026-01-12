@@ -9,6 +9,8 @@ import Marketplace from './pages/Marketplace';
 import PropertyDetails from './pages/PropertyDetails';
 import SellProperty from './pages/SellProperty';
 import ResaleMarketplace from './pages/ResaleMarketplace';
+import MyShares from './pages/MyShares';
+import BackendTest from './pages/BackendTest';
 import CreateProperty from './pages/Admin/CreateProperty';
 import AdminConsole from './pages/Admin/AdminConsole';
 
@@ -27,6 +29,8 @@ function App() {
         {/* Protected User Routes */}
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/sell" element={<SellProperty />} />
+        <Route path="/my-shares" element={<MyShares />} />
+        <Route path="/test" element={<BackendTest />} />
 
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminConsole />} />

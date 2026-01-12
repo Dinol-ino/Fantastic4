@@ -1,122 +1,171 @@
 // frontend/src/services/contract.js
+/**
+ * Smart Contract Service
+ * Interacts with RealEstateMarketplace contract on Polygon Amoy
+ */
 import { ethers } from 'ethers';
 
-// Contract ABI - matches RealEstateNFT.sol
-export const REAL_ESTATE_ABI = [
-    // Functions
-    {
-        "inputs": [
-            { "internalType": "uint256", "name": "_pricePerShare", "type": "uint256" },
-            { "internalType": "uint256", "name": "_totalShares", "type": "uint256" },
-            { "internalType": "string", "name": "_tokenURI", "type": "string" }
-        ],
-        "name": "listProperty",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            { "internalType": "uint256", "name": "_propertyId", "type": "uint256" },
-            { "internalType": "uint256", "name": "_sharesToBuy", "type": "uint256" }
-        ],
-        "name": "buyShares",
-        "outputs": [],
-        "stateMutability": "payable",
-        "type": "function"
-    },
-    {
-        "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-        "name": "properties",
-        "outputs": [
-            { "internalType": "uint256", "name": "id", "type": "uint256" },
-            { "internalType": "uint256", "name": "pricePerShare", "type": "uint256" },
-            { "internalType": "uint256", "name": "totalShares", "type": "uint256" },
-            { "internalType": "uint256", "name": "sharesSold", "type": "uint256" },
-            { "internalType": "address", "name": "owner", "type": "address" },
-            { "internalType": "bool", "name": "isActive", "type": "bool" }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            { "internalType": "uint256", "name": "", "type": "uint256" },
-            { "internalType": "address", "name": "", "type": "address" }
-        ],
-        "name": "userShares",
-        "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "nextPropertyId",
-        "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    // Events
-    {
-        "anonymous": false,
-        "inputs": [
-            { "indexed": true, "internalType": "uint256", "name": "id", "type": "uint256" },
-            { "indexed": true, "internalType": "address", "name": "owner", "type": "address" },
-            { "indexed": false, "internalType": "uint256", "name": "pricePerShare", "type": "uint256" },
-            { "indexed": false, "internalType": "uint256", "name": "totalShares", "type": "uint256" }
-        ],
-        "name": "PropertyListed",
-        "type": "event"
-    },
-    {
-        "anonymous": false,
-        "inputs": [
-            { "indexed": true, "internalType": "uint256", "name": "id", "type": "uint256" },
-            { "indexed": true, "internalType": "address", "name": "buyer", "type": "address" },
-            { "indexed": false, "internalType": "uint256", "name": "shares", "type": "uint256" },
-            { "indexed": false, "internalType": "uint256", "name": "amountSpent", "type": "uint256" }
-        ],
-        "name": "SharesPurchased",
-        "type": "event"
-    }
-];
-
-// Contract address from environment
+// Contract address from deployment
 export const CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS;
 
-// Polygon Amoy configuration
-export const AMOY_CONFIG = {
-    chainId: '0x13882', // 80002 in hex
-    chainName: 'Polygon Amoy Testnet',
-    nativeCurrency: {
-        name: 'MATIC',
-        symbol: 'MATIC',
-        decimals: 18
+// Optimized contract ABI (matches RealEstateNFT.sol)
+export const CONTRACT_ABI = [
+    // List property (admin)
+    {
+        inputs: [
+            { name: "_price", type: "uint256" },
+            { name: "_shares", type: "uint256" }
+        ],
+        name: "listProperty",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function"
     },
+    // Buy shares (primary)
+    {
+        inputs: [
+            { name: "_id", type: "uint256" },
+            { name: "_amount", type: "uint256" }
+        ],
+        name: "buyShares",
+        outputs: [],
+        stateMutability: "payable",
+        type: "function"
+    },
+    // List for resale
+    {
+        inputs: [
+            { name: "_propId", type: "uint256" },
+            { name: "_shares", type: "uint256" },
+            { name: "_price", type: "uint256" }
+        ],
+        name: "listForResale",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function"
+    },
+    // Buy from resale
+    {
+        inputs: [
+            { name: "_listingId", type: "uint256" },
+            { name: "_amount", type: "uint256" }
+        ],
+        name: "buyResale",
+        outputs: [],
+        stateMutability: "payable",
+        type: "function"
+    },
+    // Cancel resale
+    {
+        inputs: [{ name: "_id", type: "uint256" }],
+        name: "cancelResale",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function"
+    },
+    // Get price (view)
+    {
+        inputs: [{ name: "_id", type: "uint256" }],
+        name: "getPrice",
+        outputs: [{ type: "uint256" }],
+        stateMutability: "view",
+        type: "function"
+    },
+    // Get market value (view)
+    {
+        inputs: [{ name: "_id", type: "uint256" }],
+        name: "getMarketValue",
+        outputs: [{ type: "uint256" }],
+        stateMutability: "view",
+        type: "function"
+    },
+    // Properties mapping
+    {
+        inputs: [{ name: "", type: "uint256" }],
+        name: "properties",
+        outputs: [
+            { name: "pricePerShare", type: "uint256" },
+            { name: "totalShares", type: "uint256" },
+            { name: "sharesSold", type: "uint256" },
+            { name: "owner", type: "address" },
+            { name: "isActive", type: "bool" }
+        ],
+        stateMutability: "view",
+        type: "function"
+    },
+    // User shares
+    {
+        inputs: [
+            { name: "", type: "uint256" },
+            { name: "", type: "address" }
+        ],
+        name: "userShares",
+        outputs: [{ type: "uint256" }],
+        stateMutability: "view",
+        type: "function"
+    },
+    // Resale listings
+    {
+        inputs: [{ name: "", type: "uint256" }],
+        name: "resaleListings",
+        outputs: [
+            { name: "propertyId", type: "uint256" },
+            { name: "seller", type: "address" },
+            { name: "shares", type: "uint256" },
+            { name: "price", type: "uint256" },
+            { name: "isActive", type: "bool" }
+        ],
+        stateMutability: "view",
+        type: "function"
+    },
+    // Last resale price
+    {
+        inputs: [{ name: "", type: "uint256" }],
+        name: "lastResalePrice",
+        outputs: [{ type: "uint256" }],
+        stateMutability: "view",
+        type: "function"
+    },
+    // Next IDs
+    { inputs: [], name: "nextPropertyId", outputs: [{ type: "uint256" }], stateMutability: "view", type: "function" },
+    { inputs: [], name: "nextListingId", outputs: [{ type: "uint256" }], stateMutability: "view", type: "function" },
+    // Events
+    { anonymous: false, inputs: [{ indexed: true, name: "id", type: "uint256" }, { indexed: false, name: "owner", type: "address" }, { indexed: false, name: "price", type: "uint256" }, { indexed: false, name: "shares", type: "uint256" }], name: "PropertyListed", type: "event" },
+    { anonymous: false, inputs: [{ indexed: true, name: "id", type: "uint256" }, { indexed: false, name: "buyer", type: "address" }, { indexed: false, name: "shares", type: "uint256" }, { indexed: false, name: "cost", type: "uint256" }], name: "SharesPurchased", type: "event" },
+    { anonymous: false, inputs: [{ indexed: true, name: "listingId", type: "uint256" }, { indexed: false, name: "propertyId", type: "uint256" }, { indexed: false, name: "shares", type: "uint256" }, { indexed: false, name: "price", type: "uint256" }], name: "ResaleCreated", type: "event" },
+    { anonymous: false, inputs: [{ indexed: true, name: "listingId", type: "uint256" }, { indexed: false, name: "buyer", type: "address" }, { indexed: false, name: "shares", type: "uint256" }, { indexed: false, name: "newPrice", type: "uint256" }], name: "ResaleSold", type: "event" }
+];
+
+// Polygon Amoy config
+export const AMOY_CONFIG = {
+    chainId: '0x13882', // 80002
+    chainName: 'Polygon Amoy Testnet',
+    nativeCurrency: { name: 'MATIC', symbol: 'MATIC', decimals: 18 },
     rpcUrls: ['https://rpc-amoy.polygon.technology'],
     blockExplorerUrls: ['https://amoy.polygonscan.com/']
 };
 
 /**
- * Get contract instance with signer
+ * Get contract instance
  */
-export function getContract(signer) {
-    if (!CONTRACT_ADDRESS || CONTRACT_ADDRESS === '0xYourDeployedContractAddressHere') {
+export function getContract(signerOrProvider) {
+    if (!CONTRACT_ADDRESS || CONTRACT_ADDRESS.includes('YourDeployed')) {
         console.warn('Contract address not configured');
         return null;
     }
-    return new ethers.Contract(CONTRACT_ADDRESS, REAL_ESTATE_ABI, signer);
+    return new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signerOrProvider);
 }
 
 /**
- * List new property on blockchain
+ * Buy shares from primary listing
  */
-export async function listProperty(signer, pricePerShareMatic, totalShares, metadataUri) {
+export async function buySharesPrimary(signer, propertyBlockchainId, shares, pricePerShareMatic) {
     const contract = getContract(signer);
     if (!contract) throw new Error('Contract not configured');
 
-    const priceInWei = ethers.parseEther(pricePerShareMatic.toString());
-    const tx = await contract.listProperty(priceInWei, totalShares, metadataUri);
+    const totalCost = ethers.parseEther((shares * pricePerShareMatic).toString());
+
+    const tx = await contract.buyShares(propertyBlockchainId, shares, { value: totalCost });
     const receipt = await tx.wait();
 
     return {
@@ -127,99 +176,95 @@ export async function listProperty(signer, pricePerShareMatic, totalShares, meta
 }
 
 /**
- * Buy shares of a property
+ * List shares for resale
  */
-export async function buyShares(signer, propertyId, sharesToBuy, totalCostMatic) {
+export async function listForResale(signer, propertyId, shares, pricePerShareMatic) {
     const contract = getContract(signer);
     if (!contract) throw new Error('Contract not configured');
 
-    const costInWei = ethers.parseEther(totalCostMatic.toString());
-
-    const tx = await contract.buyShares(propertyId, sharesToBuy, { value: costInWei });
+    const priceWei = ethers.parseEther(pricePerShareMatic.toString());
+    const tx = await contract.listForResale(propertyId, shares, priceWei);
     const receipt = await tx.wait();
 
-    return {
-        success: true,
-        txHash: receipt.hash,
-        blockNumber: receipt.blockNumber
-    };
+    return { success: true, txHash: receipt.hash };
 }
 
 /**
- * Get property details from blockchain
+ * Buy from resale listing
  */
-export async function getProperty(provider, propertyId) {
-    const contract = new ethers.Contract(CONTRACT_ADDRESS, REAL_ESTATE_ABI, provider);
-    const property = await contract.properties(propertyId);
+export async function buyFromResale(signer, listingId, shares, pricePerShareMatic) {
+    const contract = getContract(signer);
+    if (!contract) throw new Error('Contract not configured');
+
+    const totalCost = ethers.parseEther((shares * pricePerShareMatic).toString());
+    const tx = await contract.buyResale(listingId, shares, { value: totalCost });
+    const receipt = await tx.wait();
+
+    return { success: true, txHash: receipt.hash };
+}
+
+/**
+ * Get property info from blockchain
+ */
+export async function getPropertyFromChain(provider, propertyId) {
+    const contract = getContract(provider);
+    if (!contract) return null;
+
+    const [pricePerShare, totalShares, sharesSold, owner, isActive] = await contract.properties(propertyId);
+    const currentPrice = await contract.getPrice(propertyId);
 
     return {
-        id: property.id.toString(),
-        pricePerShare: ethers.formatEther(property.pricePerShare),
-        totalShares: property.totalShares.toString(),
-        sharesSold: property.sharesSold.toString(),
-        availableShares: (property.totalShares - property.sharesSold).toString(),
-        owner: property.owner,
-        isActive: property.isActive
+        pricePerShare: ethers.formatEther(pricePerShare),
+        currentPrice: ethers.formatEther(currentPrice),
+        totalShares: Number(totalShares),
+        sharesSold: Number(sharesSold),
+        availableShares: Number(totalShares) - Number(sharesSold),
+        owner,
+        isActive
     };
 }
 
 /**
  * Get user's shares for a property
  */
-export async function getUserShares(provider, propertyId, userAddress) {
-    const contract = new ethers.Contract(CONTRACT_ADDRESS, REAL_ESTATE_ABI, provider);
+export async function getUserSharesFromChain(provider, propertyId, userAddress) {
+    const contract = getContract(provider);
+    if (!contract) return 0;
+
     const shares = await contract.userShares(propertyId, userAddress);
-    return shares.toString();
+    return Number(shares);
 }
 
 /**
- * Check if MetaMask is on correct network
- */
-export async function checkNetwork() {
-    if (!window.ethereum) return { correct: false, error: 'No wallet detected' };
-
-    const chainId = await window.ethereum.request({ method: 'eth_chainId' });
-    return {
-        correct: chainId === AMOY_CONFIG.chainId,
-        currentChainId: chainId,
-        requiredChainId: AMOY_CONFIG.chainId
-    };
-}
-
-/**
- * Switch to Polygon Amoy network
+ * Switch network to Amoy
  */
 export async function switchToAmoy() {
-    if (!window.ethereum) throw new Error('No wallet detected');
+    if (!window.ethereum) throw new Error('No wallet');
 
     try {
         await window.ethereum.request({
             method: 'wallet_switchEthereumChain',
             params: [{ chainId: AMOY_CONFIG.chainId }]
         });
-        return { success: true };
-    } catch (switchError) {
-        if (switchError.code === 4902) {
-            // Add network
+    } catch (e) {
+        if (e.code === 4902) {
             await window.ethereum.request({
                 method: 'wallet_addEthereumChain',
                 params: [AMOY_CONFIG]
             });
-            return { success: true, added: true };
-        }
-        throw switchError;
+        } else throw e;
     }
 }
 
 export default {
-    REAL_ESTATE_ABI,
     CONTRACT_ADDRESS,
+    CONTRACT_ABI,
     AMOY_CONFIG,
     getContract,
-    listProperty,
-    buyShares,
-    getProperty,
-    getUserShares,
-    checkNetwork,
+    buySharesPrimary,
+    listForResale,
+    buyFromResale,
+    getPropertyFromChain,
+    getUserSharesFromChain,
     switchToAmoy
 };

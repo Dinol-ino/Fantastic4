@@ -260,46 +260,51 @@ const CreateProperty = () => {
   }
 
   return (
-    <div>
+    <div style={{ background: '#0F1115', minHeight: '100vh' }}>
       <Navbar />
 
-      <div className="container" style={{ paddingTop: '100px', paddingBottom: '50px', maxWidth: '800px' }}>
-        <div className="auth-card" style={{ padding: '35px' }}>
-          <h2 className="text-center" style={{ marginBottom: '10px' }}>List New Property</h2>
-          <p className="text-center" style={{ color: '#6b7280', marginBottom: '30px' }}>
+      <div className="container" style={{ paddingTop: '140px', paddingBottom: '80px', maxWidth: '800px' }}>
+        <div style={{
+          backgroundColor: '#1C1F26',
+          padding: '48px',
+          borderRadius: '20px',
+          border: '1px solid rgba(201,162,77,0.15)'
+        }}>
+          <h2 style={{ textAlign: 'center', marginBottom: '12px', fontSize: '2.5rem', fontWeight: '700', color: '#C9A24D' }}>List New Property</h2>
+          <p style={{ textAlign: 'center', color: '#A8A8A8', marginBottom: '40px', fontSize: '1.15rem' }}>
             Tokenize your real estate asset on the blockchain
           </p>
 
           {/* Progress Steps */}
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '5px', marginBottom: '30px' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginBottom: '40px' }}>
             {['Details', 'Location', 'Images', 'Review'].map((label, idx) => (
               <div
                 key={label}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  color: step > idx + 1 ? '#10b981' : step === idx + 1 ? '#2563eb' : '#9ca3af'
+                  color: step > idx + 1 ? '#10b981' : step === idx + 1 ? '#C9A24D' : '#6B6B6B'
                 }}
               >
                 <div style={{
-                  width: '32px',
-                  height: '32px',
+                  width: '36px',
+                  height: '36px',
                   borderRadius: '50%',
-                  backgroundColor: step > idx + 1 ? '#10b981' : step === idx + 1 ? '#2563eb' : '#e5e7eb',
-                  color: step >= idx + 1 ? 'white' : '#9ca3af',
+                  backgroundColor: step > idx + 1 ? '#10b981' : step === idx + 1 ? '#C9A24D' : '#252830',
+                  color: step >= idx + 1 ? '#0F1115' : '#6B6B6B',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontWeight: '600',
-                  fontSize: '0.9rem'
+                  fontWeight: '700',
+                  fontSize: '1rem'
                 }}>
                   {step > idx + 1 ? '✓' : idx + 1}
                 </div>
                 <span style={{
-                  marginLeft: '8px',
-                  marginRight: '20px',
-                  fontWeight: step === idx + 1 ? '600' : '400',
-                  fontSize: '0.9rem'
+                  marginLeft: '10px',
+                  marginRight: '24px',
+                  fontWeight: step === idx + 1 ? '700' : '500',
+                  fontSize: '1rem'
                 }}>
                   {label}
                 </span>
@@ -310,12 +315,14 @@ const CreateProperty = () => {
           {/* Status Message */}
           {status && (
             <div style={{
-              padding: '12px',
-              borderRadius: '8px',
-              marginBottom: '20px',
-              backgroundColor: status.includes('Failed') ? '#fef2f2' : '#e0f2fe',
-              color: status.includes('Failed') ? '#b91c1c' : '#0369a1',
-              textAlign: 'center'
+              padding: '16px',
+              borderRadius: '12px',
+              marginBottom: '24px',
+              backgroundColor: status.includes('Failed') ? 'rgba(239,68,68,0.1)' : 'rgba(16,185,129,0.1)',
+              border: `1px solid ${status.includes('Failed') ? 'rgba(239,68,68,0.3)' : 'rgba(16,185,129,0.3)'}`,
+              color: status.includes('Failed') ? '#ef4444' : '#10b981',
+              textAlign: 'center',
+              fontSize: '1.1rem'
             }}>
               {status}
             </div>
@@ -324,15 +331,15 @@ const CreateProperty = () => {
           {/* Wallet Check */}
           {!isConnected && (
             <div style={{
-              backgroundColor: '#fef3c7',
-              padding: '15px',
-              borderRadius: '8px',
-              marginBottom: '20px',
+              backgroundColor: 'rgba(201,162,77,0.1)',
+              padding: '24px',
+              borderRadius: '16px',
+              marginBottom: '28px',
               textAlign: 'center',
-              border: '1px solid #f59e0b'
+              border: '1px solid rgba(201,162,77,0.3)'
             }}>
-              <p style={{ color: '#92400e', marginBottom: '10px' }}>
-                🔐 Connect your wallet to list properties
+              <p style={{ color: '#C9A24D', marginBottom: '16px', fontSize: '1.1rem' }}>
+                Connect your wallet to list properties
               </p>
               <button onClick={connectWallet} className="btn-primary">
                 Connect MetaMask

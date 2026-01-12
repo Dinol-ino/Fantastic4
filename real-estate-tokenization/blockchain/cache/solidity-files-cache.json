@@ -66,8 +66,8 @@
       "artifacts": []
     },
     "C:\\Fantastic4\\real-estate-tokenization\\blockchain\\contracts\\RealEstateNFT.sol": {
-      "lastModificationDate": 1768224305606,
-      "contentHash": "81badb791934f432925decda29cf2251",
+      "lastModificationDate": 1768235328466,
+      "contentHash": "f5397136e56c181c0803f781a66554f4",
       "sourceName": "contracts/RealEstateNFT.sol",
       "solcConfig": {
         "version": "0.8.20",
@@ -94,7 +94,6 @@
         }
       },
       "imports": [
-        "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol",
         "@openzeppelin/contracts/access/Ownable.sol",
         "@openzeppelin/contracts/utils/ReentrancyGuard.sol"
       ],

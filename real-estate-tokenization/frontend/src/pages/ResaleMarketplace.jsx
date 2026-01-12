@@ -32,23 +32,56 @@ const ResaleMarketplace = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                // Fetch active resale listings
+                // Fetch active resale listings (simplified query - no index needed)
                 const listingsRef = collection(db, 'resaleListings');
-                const listingsQuery = query(listingsRef, where('isActive', '==', true), orderBy('createdAt', 'desc'));
-                const listingsSnap = await getDocs(listingsQuery);
-                setListings(listingsSnap.docs.map(d => ({ id: d.id, ...d.data() })));
+                let listingsData = [];
+
+                try {
+                    // Try simple query first
+                    const listingsQuery = query(listingsRef, where('isActive', '==', true));
+                    const listingsSnap = await getDocs(listingsQuery);
+                    listingsData = listingsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+                } catch (e) {
+                    // Fallback: get all and filter
+                    const allSnap = await getDocs(listingsRef);
+                    listingsData = allSnap.docs
+                        .map(d => ({ id: d.id, ...d.data() }))
+                        .filter(l => l.isActive === true);
+                }
+
+                // Sort by createdAt in JavaScript
+                listingsData.sort((a, b) => {
+                    const timeA = a.createdAt?.toDate?.()?.getTime() || 0;
+                    const timeB = b.createdAt?.toDate?.()?.getTime() || 0;
+                    return timeB - timeA;
+                });
+
+                setListings(listingsData);
 
                 // Fetch user's own listings
                 if (currentUser) {
-                    const myListingsQuery = query(listingsRef, where('sellerUid', '==', currentUser.uid));
-                    const myListingsSnap = await getDocs(myListingsQuery);
-                    setMyListings(myListingsSnap.docs.map(d => ({ id: d.id, ...d.data() })));
+                    try {
+                        const myListingsQuery = query(listingsRef, where('sellerUid', '==', currentUser.uid));
+                        const myListingsSnap = await getDocs(myListingsQuery);
+                        setMyListings(myListingsSnap.docs.map(d => ({ id: d.id, ...d.data() })));
+                    } catch (e) {
+                        console.log('My listings query failed, using fallback');
+                        const allSnap = await getDocs(listingsRef);
+                        setMyListings(allSnap.docs
+                            .map(d => ({ id: d.id, ...d.data() }))
+                            .filter(l => l.sellerUid === currentUser.uid)
+                        );
+                    }
 
                     // Fetch user's owned shares
-                    const sharesRef = collection(db, 'userShares');
-                    const sharesQuery = query(sharesRef, where('userId', '==', currentUser.uid));
-                    const sharesSnap = await getDocs(sharesQuery);
-                    setMyShares(sharesSnap.docs.map(d => ({ id: d.id, ...d.data() })));
+                    try {
+                        const sharesRef = collection(db, 'userShares');
+                        const sharesQuery = query(sharesRef, where('userId', '==', currentUser.uid));
+                        const sharesSnap = await getDocs(sharesQuery);
+                        setMyShares(sharesSnap.docs.map(d => ({ id: d.id, ...d.data() })));
+                    } catch (e) {
+                        console.log('User shares query failed');
+                    }
                 }
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -163,37 +196,40 @@ const ResaleMarketplace = () => {
     };
 
     return (
-        <div>
+        <div style={{ background: '#000', minHeight: '100vh' }}>
             <Navbar />
 
-            <main className="container" style={{ paddingTop: '100px', paddingBottom: '50px' }}>
+            <main className="container" style={{ paddingTop: '120px', paddingBottom: '80px' }}>
                 {/* Header */}
-                <div style={{ marginBottom: '30px' }}>
-                    <h1 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '10px' }}>
+                <div style={{ marginBottom: '50px' }}>
+                    <h1 style={{ fontSize: '3rem', fontWeight: '700', marginBottom: '16px', color: '#d4af37' }}>
                         Resale Marketplace
                     </h1>
-                    <p style={{ color: '#6b7280' }}>
+                    <p style={{ color: '#888', fontSize: '1.2rem' }}>
                         Buy and sell property shares on the secondary market
                     </p>
                 </div>
 
                 {/* Tabs */}
-                <div style={{ display: 'flex', gap: '10px', marginBottom: '30px', borderBottom: '2px solid #e5e7eb', paddingBottom: '10px' }}>
+                <div style={{ display: 'flex', gap: '12px', marginBottom: '40px', borderBottom: '1px solid rgba(212,175,55,0.2)', paddingBottom: '16px' }}>
                     {['browse', 'sell', 'my-listings'].map(t => (
                         <button
                             key={t}
                             onClick={() => setTab(t)}
                             style={{
-                                padding: '10px 20px',
+                                padding: '14px 28px',
                                 borderRadius: '8px',
-                                border: 'none',
-                                backgroundColor: tab === t ? '#2563eb' : 'transparent',
-                                color: tab === t ? 'white' : '#6b7280',
+                                border: tab === t ? 'none' : '1px solid rgba(212,175,55,0.3)',
+                                background: tab === t ? 'linear-gradient(135deg, #d4af37 0%, #8b6914 100%)' : 'transparent',
+                                color: tab === t ? '#000' : '#d4af37',
                                 cursor: 'pointer',
-                                fontWeight: tab === t ? '600' : '400'
+                                fontWeight: '700',
+                                fontSize: '1rem',
+                                fontFamily: 'Times New Roman, serif',
+                                letterSpacing: '0.05em'
                             }}
                         >
-                            {t === 'browse' ? '🛒 Browse Listings' : t === 'sell' ? '💰 Sell Shares' : '📋 My Listings'}
+                            {t === 'browse' ? 'Browse Listings' : t === 'sell' ? 'Sell Shares' : 'My Listings'}
                         </button>
                     ))}
                 </div>
@@ -202,24 +238,25 @@ const ResaleMarketplace = () => {
                 {tab === 'browse' && (
                     <div>
                         {loading ? (
-                            <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>
+                            <div style={{ textAlign: 'center', padding: '60px', color: '#888' }}>
                                 Loading listings...
                             </div>
                         ) : listings.length === 0 ? (
                             <div style={{
                                 textAlign: 'center',
-                                padding: '60px',
-                                backgroundColor: '#f9fafb',
-                                borderRadius: '12px'
+                                padding: '80px',
+                                backgroundColor: '#0a0a0a',
+                                borderRadius: '12px',
+                                border: '1px solid rgba(212,175,55,0.15)'
                             }}>
-                                <h3>No Active Listings</h3>
-                                <p style={{ color: '#6b7280', marginTop: '10px' }}>
+                                <h3 style={{ color: '#fff', fontSize: '1.6rem', fontWeight: '700' }}>No Active Listings</h3>
+                                <p style={{ color: '#888', marginTop: '16px', fontSize: '1.1rem' }}>
                                     Be the first to list your shares for resale!
                                 </p>
                                 <button
                                     onClick={() => setTab('sell')}
                                     className="btn-primary"
-                                    style={{ marginTop: '20px' }}
+                                    style={{ marginTop: '30px' }}
                                 >
                                     List Shares for Sale
                                 </button>
@@ -282,13 +319,13 @@ const ResaleMarketplace = () => {
 
                 {/* Sell Shares Tab */}
                 {tab === 'sell' && (
-                    <div style={{ maxWidth: '500px', margin: '0 auto' }}>
-                        <div className="card" style={{ padding: '30px' }}>
-                            <h3 style={{ marginBottom: '20px' }}>List Shares for Sale</h3>
+                    <div style={{ maxWidth: '520px', margin: '0 auto' }}>
+                        <div className="card" style={{ padding: '40px' }}>
+                            <h3 style={{ marginBottom: '28px', fontSize: '1.8rem', fontWeight: '700', color: '#F5F5F5', textAlign: 'center' }}>List Shares for Sale</h3>
 
                             {!currentUser ? (
                                 <div style={{ textAlign: 'center' }}>
-                                    <p style={{ marginBottom: '15px', color: '#6b7280' }}>
+                                    <p style={{ marginBottom: '20px', color: '#A8A8A8', fontSize: '1.1rem' }}>
                                         Please login to sell shares
                                     </p>
                                     <button onClick={() => navigate('/login')} className="btn-primary">
@@ -306,7 +343,7 @@ const ResaleMarketplace = () => {
                                             placeholder="Enter property ID"
                                             required
                                         />
-                                        <small style={{ color: '#9ca3af' }}>
+                                        <small style={{ color: '#6B6B6B', fontSize: '0.95rem' }}>
                                             Find this in your dashboard under owned shares
                                         </small>
                                     </div>
@@ -336,21 +373,21 @@ const ResaleMarketplace = () => {
                                             placeholder="0.5"
                                             required
                                         />
-                                        <small style={{ color: '#9ca3af' }}>
+                                        <small style={{ color: '#6B6B6B', fontSize: '0.95rem' }}>
                                             Set any price you want - this affects the market price when sold
                                         </small>
                                     </div>
 
                                     {sellForm.shares && sellForm.pricePerShare && (
                                         <div style={{
-                                            backgroundColor: '#f0fdf4',
-                                            padding: '15px',
-                                            borderRadius: '8px',
-                                            marginBottom: '20px',
-                                            border: '1px solid #10b981'
+                                            backgroundColor: 'rgba(16, 185, 129, 0.08)',
+                                            padding: '20px',
+                                            borderRadius: '12px',
+                                            marginBottom: '28px',
+                                            border: '1px solid rgba(16, 185, 129, 0.3)'
                                         }}>
-                                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                                <span>Total if all sold:</span>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.1rem' }}>
+                                                <span style={{ color: '#A8A8A8' }}>Total if all sold:</span>
                                                 <strong style={{ color: '#10b981' }}>
                                                     {(parseFloat(sellForm.pricePerShare) * parseInt(sellForm.shares)).toFixed(4)} MATIC
                                                 </strong>
@@ -360,9 +397,9 @@ const ResaleMarketplace = () => {
 
                                     <button
                                         type="submit"
-                                        className="btn-primary btn-full"
+                                        className="btn-primary"
+                                        style={{ width: '100%', padding: '16px' }}
                                         disabled={!isConnected}
-                                        style={{ padding: '14px' }}
                                     >
                                         {isConnected ? 'Create Listing' : 'Connect Wallet First'}
                                     </button>

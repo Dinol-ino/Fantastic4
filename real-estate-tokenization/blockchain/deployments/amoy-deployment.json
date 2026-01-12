@@ -1,0 +1,17 @@
+{
+  "network": "polygon-amoy",
+  "chainId": 80002,
+  "contractName": "RealEstateMarketplace",
+  "contractAddress": "0x26053209b813034703a28c745D244b5c583130dD",
+  "deployer": "0x90D1C52c1763efa0e86aca7d0d1A00db7A368a7a",
+  "deployedAt": "2026-01-12T16:29:23.589Z",
+  "txHash": "0xf74e9adbfa4be9757f2ecf66714299d4a315e5681eaf9d790c15da71a340ac2d",
+  "features": [
+    "Primary property listing",
+    "Fractional share purchases",
+    "Resale marketplace",
+    "Dynamic pricing (last resale)",
+    "Average price calculation (last 10)",
+    "Implied market value"
+  ]
+}

@@ -1,11 +1,15 @@
 // frontend/src/pages/PropertyDetails.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, serverTimestamp, increment } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import { useAuth } from '../context/AuthContext';
 import { useWallet } from '../context/WalletContext';
 import Navbar from '../components/Navbar';
+import SharesDisplay from '../components/SharesDisplay';
+import { openCertificate } from '../services/certificate';
+import { buySharesPrimary, getContract, CONTRACT_ADDRESS } from '../services/contract';
+import { maticToInr } from '../services/currency';
 import { MapContainer, TileLayer, Marker } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -21,14 +25,15 @@ L.Icon.Default.mergeOptions({
 const PropertyDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { currentUser } = useAuth();
-    const { account, isConnected, connectWallet, signer } = useWallet();
+    const { currentUser, userData } = useAuth();
+    const { account, isConnected, connectWallet, signer, provider, isAmoy } = useWallet();
 
     const [property, setProperty] = useState(null);
     const [loading, setLoading] = useState(true);
     const [selectedImage, setSelectedImage] = useState(0);
     const [sharesToBuy, setSharesToBuy] = useState(1);
     const [purchasing, setPurchasing] = useState(false);
+    const [txStatus, setTxStatus] = useState('');
 
     useEffect(() => {
         const fetchProperty = async () => {
@@ -39,8 +44,21 @@ const PropertyDetails = () => {
                 if (docSnap.exists()) {
                     setProperty({ id: docSnap.id, ...docSnap.data() });
                 } else {
-                    // Try demo properties
-                    console.log('Property not found in Firestore');
+                    // Demo fallback
+                    setProperty({
+                        id: id,
+                        title: 'Demo Property',
+                        description: 'This is a demo property for testing.',
+                        location: { address: 'Demo Location', lat: 20.5937, lng: 78.9629 },
+                        propertyType: 'residential',
+                        pricePerShare: 0.5,
+                        currentPrice: 0.5,
+                        totalShares: 1000,
+                        availableShares: 750,
+                        mainImageUrl: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=80',
+                        images: [],
+                        amenities: ['Parking', 'Pool', 'Security']
+                    });
                 }
             } catch (error) {
                 console.error('Error fetching property:', error);
@@ -63,18 +81,80 @@ const PropertyDetails = () => {
             return;
         }
 
-        setPurchasing(true);
-        try {
-            const totalCost = sharesToBuy * property.currentPrice;
+        if (!isAmoy) {
+            alert('Please switch to Polygon Amoy network');
+            return;
+        }
 
-            // In production, this would call the smart contract
-            alert(`Purchase initiated!\n\nShares: ${sharesToBuy}\nTotal: ${totalCost} MATIC\n\nThis would trigger a blockchain transaction.`);
+        setPurchasing(true);
+        setTxStatus('Preparing transaction...');
+
+        try {
+            const pricePerShare = property.currentPrice || property.pricePerShare;
+            const totalCost = sharesToBuy * pricePerShare;
+
+            setTxStatus('Please confirm in MetaMask...');
+
+            // Call smart contract (if blockchain ID exists)
+            let txHash = null;
+            if (property.blockchainId !== undefined) {
+                const result = await buySharesPrimary(signer, property.blockchainId, sharesToBuy, pricePerShare);
+                txHash = result.txHash;
+            } else {
+                // For demo/Firestore-only mode, simulate tx hash
+                txHash = '0x' + Math.random().toString(16).slice(2) + Date.now().toString(16);
+            }
+
+            setTxStatus('Recording purchase...');
+
+            // Save purchase to Firestore
+            const purchaseId = `purchase_${Date.now()}`;
+            await setDoc(doc(db, 'purchases', purchaseId), {
+                purchaseId,
+                propertyId: property.id,
+                propertyTitle: property.title,
+                userId: currentUser.uid,
+                buyerWallet: account,
+                shares: sharesToBuy,
+                pricePerShare: pricePerShare,
+                totalCost: totalCost,
+                txHash: txHash,
+                timestamp: serverTimestamp()
+            });
+
+            // Update property available shares
+            await updateDoc(doc(db, 'properties', property.id), {
+                availableShares: increment(-sharesToBuy),
+                updatedAt: serverTimestamp()
+            }).catch(() => { });
+
+            setTxStatus('Success! 🎉');
+
+            // Generate certificate
+            setTimeout(() => {
+                if (confirm('Purchase successful! Generate ownership certificate?')) {
+                    openCertificate({
+                        certificateId: `CERT-${Date.now().toString(36).toUpperCase()}`,
+                        ownerName: userData?.firstName || currentUser.email?.split('@')[0],
+                        ownerWallet: account,
+                        propertyTitle: property.title,
+                        propertyId: property.id,
+                        shares: sharesToBuy,
+                        pricePerShare: pricePerShare,
+                        totalValue: totalCost.toFixed(4),
+                        purchaseDate: new Date().toLocaleDateString(),
+                        txHash: txHash,
+                        contractAddress: CONTRACT_ADDRESS
+                    });
+                }
+                navigate('/dashboard');
+            }, 1000);
 
         } catch (error) {
             console.error('Purchase failed:', error);
-            alert('Purchase failed: ' + error.message);
+            setTxStatus('Failed: ' + (error.reason || error.message));
         } finally {
-            setPurchasing(false);
+            setTimeout(() => setPurchasing(false), 2000);
         }
     };
 
@@ -259,9 +339,14 @@ const PropertyDetails = () => {
                             <div style={{ marginBottom: '20px' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
                                     <span style={{ color: '#6b7280' }}>Current Price</span>
-                                    <span style={{ fontWeight: '600', color: '#2563eb', fontSize: '1.2rem' }}>
-                                        {property.currentPrice || property.pricePerShare} MATIC
-                                    </span>
+                                    <div style={{ textAlign: 'right' }}>
+                                        <span style={{ fontWeight: '600', color: '#2563eb', fontSize: '1.2rem' }}>
+                                            {property.currentPrice || property.pricePerShare} MATIC
+                                        </span>
+                                        <div style={{ fontSize: '0.8rem', color: '#6b7280' }}>
+                                            ≈ {maticToInr(property.currentPrice || property.pricePerShare)}
+                                        </div>
+                                    </div>
                                 </div>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
                                     <span style={{ color: '#6b7280' }}>Initial Price</span>
@@ -337,7 +422,12 @@ const PropertyDetails = () => {
                                         borderTop: '1px solid #e5e7eb'
                                     }}>
                                         <span>Total</span>
-                                        <span style={{ color: '#2563eb' }}>{totalCost.toFixed(4)} MATIC</span>
+                                        <div style={{ textAlign: 'right' }}>
+                                            <span style={{ color: '#2563eb' }}>{totalCost.toFixed(4)} MATIC</span>
+                                            <div style={{ fontSize: '0.8rem', color: '#6b7280', fontWeight: 'normal' }}>
+                                                ≈ {maticToInr(totalCost)}
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

@@ -75,20 +75,29 @@ const Register = () => {
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-card" style={{ maxWidth: '450px' }}>
-        <h2 className="text-center" style={{ marginBottom: '10px' }}>Create Account</h2>
-        <p className="text-center" style={{ color: '#6b7280', marginBottom: '25px', fontSize: '0.9rem' }}>
-          Start investing in tokenized real estate
-        </p>
+    <div style={{
+      minHeight: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: '#000',
+      padding: '60px 20px'
+    }}>
+      <div className="card" style={{ maxWidth: '520px', width: '100%', padding: '50px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+          <img src="/assets/logo.jpg" alt="Aurelian" style={{ height: '50px', margin: '0 auto 24px', display: 'block' }} />
+          <h2 style={{ fontSize: '2.2rem', fontWeight: '700', marginBottom: '14px', color: '#d4af37' }}>Create Account</h2>
+          <p style={{ color: '#888', fontSize: '1.15rem' }}>Start investing in tokenized real estate</p>
+        </div>
 
         {error && (
           <div style={{
-            backgroundColor: '#fee2e2',
-            color: '#dc2626',
-            padding: '10px',
-            borderRadius: '6px',
-            marginBottom: '15px',
+            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+            border: '1px solid rgba(239, 68, 68, 0.2)',
+            color: '#ef4444',
+            padding: '12px',
+            borderRadius: '8px',
+            marginBottom: '20px',
             fontSize: '0.9rem'
           }}>
             {error}
@@ -173,13 +182,14 @@ const Register = () => {
 
           {/* Wallet Connection Section */}
           <div style={{
-            backgroundColor: '#f3f4f6',
+            backgroundColor: 'rgba(255,255,255,0.02)',
+            border: '1px solid var(--border-light)',
             padding: '15px',
             borderRadius: '8px',
             marginBottom: '20px'
           }}>
-            <p style={{ fontSize: '0.85rem', marginBottom: '10px', color: '#374151' }}>
-              <strong>Optional:</strong> Connect your MetaMask wallet now
+            <p style={{ fontSize: '0.85rem', marginBottom: '10px', color: '#a1a1aa' }}>
+              <strong>Optional:</strong> Connect your MetaMask wallet
             </p>
             <button
               onClick={connectWallet}
@@ -208,15 +218,16 @@ const Register = () => {
 
           <button
             type="submit"
-            className="btn-primary btn-full"
+            className="btn-primary"
+            style={{ width: '100%', justifyContent: 'center' }}
             disabled={loading}
           >
             {loading ? 'Creating Account...' : 'Create Account'}
           </button>
         </form>
 
-        <p className="text-center" style={{ marginTop: '20px', fontSize: '0.9rem' }}>
-          Already have an account? <Link to="/login" style={{ color: 'var(--primary)' }}>Sign in</Link>
+        <p className="text-center" style={{ marginTop: '20px', fontSize: '0.9rem', color: '#a1a1aa' }}>
+          Already have an account? <Link to="/login" style={{ color: '#d4af37', textDecoration: 'none' }}>Sign in</Link>
         </p>
       </div>
     </div>

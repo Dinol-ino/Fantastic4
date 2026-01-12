@@ -148,40 +148,41 @@ const SellProperty = () => {
     }
 
     return (
-        <div>
+        <div style={{ background: '#000', minHeight: '100vh' }}>
             <Navbar />
 
-            <main className="container" style={{ paddingTop: '100px', paddingBottom: '50px', maxWidth: '700px' }}>
-                <div className="auth-card" style={{ padding: '35px' }}>
-                    <h2 className="text-center" style={{ marginBottom: '10px' }}>Sell Your Property</h2>
-                    <p className="text-center" style={{ color: '#6b7280', marginBottom: '30px' }}>
+            <main className="container" style={{ paddingTop: '120px', paddingBottom: '80px', maxWidth: '700px' }}>
+                <div className="card" style={{ padding: '50px' }}>
+                    <h2 style={{ textAlign: 'center', marginBottom: '12px', fontSize: '2.2rem', fontWeight: '700', color: '#d4af37' }}>Sell Your Property</h2>
+                    <p style={{ textAlign: 'center', color: '#888', marginBottom: '40px', fontSize: '1.1rem' }}>
                         Submit your property for tokenization and reach global investors
                     </p>
 
                     {/* Progress Steps */}
-                    <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginBottom: '30px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'center', gap: '24px', marginBottom: '40px' }}>
                         {[1, 2, 3].map(s => (
                             <div key={s} style={{
                                 display: 'flex',
                                 alignItems: 'center',
-                                gap: '8px',
-                                color: step >= s ? '#2563eb' : '#9ca3af'
+                                gap: '10px',
+                                color: step >= s ? '#d4af37' : '#555'
                             }}>
                                 <div style={{
-                                    width: '28px',
-                                    height: '28px',
+                                    width: '32px',
+                                    height: '32px',
                                     borderRadius: '50%',
-                                    backgroundColor: step >= s ? '#2563eb' : '#e5e7eb',
-                                    color: step >= s ? 'white' : '#9ca3af',
+                                    background: step >= s ? 'linear-gradient(135deg, #d4af37 0%, #8b6914 100%)' : '#1a1a1a',
+                                    border: step >= s ? 'none' : '1px solid #333',
+                                    color: step >= s ? '#000' : '#555',
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
-                                    fontWeight: '600',
-                                    fontSize: '0.85rem'
+                                    fontWeight: '700',
+                                    fontSize: '0.95rem'
                                 }}>
                                     {step > s ? '✓' : s}
                                 </div>
-                                <span style={{ fontSize: '0.9rem', fontWeight: step === s ? '600' : '400' }}>
+                                <span style={{ fontSize: '1rem', fontWeight: step === s ? '700' : '400' }}>
                                     {s === 1 ? 'Details' : s === 2 ? 'Documents' : 'Review'}
                                 </span>
                             </div>
@@ -191,14 +192,15 @@ const SellProperty = () => {
                     {/* Wallet Check */}
                     {!isConnected && (
                         <div style={{
-                            backgroundColor: '#fef3c7',
-                            padding: '15px',
+                            backgroundColor: 'rgba(212,175,55,0.1)',
+                            border: '1px solid rgba(212,175,55,0.3)',
+                            padding: '20px',
                             borderRadius: '8px',
-                            marginBottom: '20px',
+                            marginBottom: '30px',
                             textAlign: 'center'
                         }}>
-                            <p style={{ color: '#92400e', marginBottom: '10px' }}>Connect wallet to proceed</p>
-                            <button onClick={connectWallet} className="btn-primary" style={{ padding: '8px 20px' }}>
+                            <p style={{ color: '#d4af37', marginBottom: '12px', fontSize: '1rem' }}>Connect wallet to proceed</p>
+                            <button onClick={connectWallet} className="btn-primary" style={{ padding: '10px 24px' }}>
                                 Connect MetaMask
                             </button>
                         </div>

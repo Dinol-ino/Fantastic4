@@ -41,20 +41,29 @@ const Login = () => {
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-card">
-        <h2 className="text-center" style={{ marginBottom: '10px' }}>Welcome Back</h2>
-        <p className="text-center" style={{ color: '#6b7280', marginBottom: '25px', fontSize: '0.9rem' }}>
-          Sign in to access your portfolio
-        </p>
+    <div style={{
+      minHeight: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: '#000',
+      padding: '20px'
+    }}>
+      <div className="card" style={{ maxWidth: '480px', width: '100%', padding: '50px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+          <img src="/assets/logo.jpg" alt="Aurelian" style={{ height: '50px', margin: '0 auto 24px', display: 'block' }} />
+          <h2 style={{ fontSize: '2.2rem', fontWeight: '700', marginBottom: '14px', color: '#d4af37' }}>Welcome Back</h2>
+          <p style={{ color: '#888', fontSize: '1.15rem' }}>Sign in to access your portfolio</p>
+        </div>
 
         {error && (
           <div style={{
-            backgroundColor: '#fee2e2',
-            color: '#dc2626',
-            padding: '10px',
-            borderRadius: '6px',
-            marginBottom: '15px',
+            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+            border: '1px solid rgba(239, 68, 68, 0.2)',
+            color: '#ef4444',
+            padding: '12px',
+            borderRadius: '8px',
+            marginBottom: '20px',
             fontSize: '0.9rem'
           }}>
             {error}
@@ -87,7 +96,8 @@ const Login = () => {
 
           <button
             type="submit"
-            className="btn-primary btn-full"
+            className="btn-primary"
+            style={{ width: '100%', justifyContent: 'center', marginTop: '10px' }}
             disabled={loading}
           >
             {loading ? 'Signing in...' : 'Sign In'}
@@ -95,19 +105,20 @@ const Login = () => {
         </form>
 
         <div style={{
-          marginTop: '25px',
-          borderTop: '1px solid #e5e7eb',
+          marginTop: '30px',
+          borderTop: '1px solid var(--border-light)',
           paddingTop: '25px'
         }}>
-          <p className="text-center" style={{ fontSize: '0.9rem', marginBottom: '12px', color: '#6b7280' }}>
+          <p className="text-center" style={{ fontSize: '0.85rem', marginBottom: '15px', color: '#71717a' }}>
             Connect your wallet for blockchain transactions
           </p>
           <button
             onClick={connectWallet}
             type="button"
-            className="btn-secondary btn-full"
+            className="btn-secondary"
             disabled={connecting}
             style={{
+              width: '100%',
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
@@ -127,20 +138,10 @@ const Login = () => {
                 : "Connect MetaMask"
             }
           </button>
-          {isConnected && (
-            <p style={{
-              marginTop: '10px',
-              fontSize: '0.8rem',
-              color: '#10b981',
-              textAlign: 'center'
-            }}>
-              ✓ Wallet connected to Polygon Amoy
-            </p>
-          )}
         </div>
 
-        <p className="text-center" style={{ marginTop: '20px', fontSize: '0.9rem' }}>
-          Don't have an account? <Link to="/register" style={{ color: 'var(--primary)' }}>Sign up</Link>
+        <p className="text-center" style={{ marginTop: '20px', fontSize: '0.9rem', color: '#a1a1aa' }}>
+          Don't have an account? <Link to="/register" style={{ color: '#d4af37', textDecoration: 'none' }}>Sign up</Link>
         </p>
       </div>
     </div>
